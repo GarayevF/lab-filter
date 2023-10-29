@@ -93,7 +93,6 @@ fetch("db.json")
 
     // kateqoriyalara click olunduqda məhsulların filtr olunub yenilənməsi
 
-
     document.querySelectorAll(".category-item").forEach(categoryItem => {
         categoryItem.addEventListener("click", function() {
             let data_id = this.getAttribute("data-id");
@@ -125,7 +124,8 @@ function updateProducts(){
             (priceFilterMax == undefined || Number(product.price) <= priceFilterMax)){
             html += 
             `
-                <div class="card">
+                <a href="/detail.html">
+                    <div data-id="${product.id}" class="card">
                     <div class="img-div">
                         <img src="${product.image}" alt="">
                     </div>
@@ -134,9 +134,16 @@ function updateProducts(){
                         <span class="price">${product.price}</span>
                     </div>
                 </div>
+                </a>
             `
         }
     })
 
     document.querySelector(".inner-container").innerHTML = html;
+
+    document.querySelectorAll(".card").forEach(card => {
+        card.addEventListener("click", function() {
+            localStorage.setItem("productdetailindex", JSON.stringify(this.getAttribute("data-id")))
+        })
+    })
 }   
