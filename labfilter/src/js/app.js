@@ -30,7 +30,7 @@ priceInput.forEach(input =>{
 
         priceFilterMin = minPrice;
         priceFilterMax = maxPrice;
-
+        
         updateProducts()
     });
 });
@@ -61,11 +61,10 @@ rangeInput.forEach(input =>{
 
         priceFilterMin = minVal;
         priceFilterMax = maxVal;
+
         updateProducts()
     });
 });
-
-
 
 fetch("db.json")
 .then(res => res.json())
@@ -76,52 +75,49 @@ fetch("db.json")
 
     let html = "";
 
-    // Kateqoriyaların dinamik əlavə olunması
-
     database.categories.forEach(category => {
         html +=
-        `
-            <li>
-                <a href="#" class="category-item" data-id="${category.id}">${category.name}</a>
-            </li>
-        `
+            `
+                <li>
+                    <a href="#" class="category-item" data-id="${category.id}">${category.name}</a>
+                </li>
+            `
     })
     categoryul.innerHTML = html
 
-    updateProducts()
+    let category_items = document.querySelectorAll(".category-item");
 
+    category_items.forEach(category => {
+        category.addEventListener("click", function() {
 
-    // kateqoriyalara click olunduqda məhsulların filtr olunub yenilənməsi
-
-    document.querySelectorAll(".category-item").forEach(categoryItem => {
-        categoryItem.addEventListener("click", function() {
-            let data_id = this.getAttribute("data-id");
+            let categoryId = category.getAttribute("data-id");
             
-            if(categoryIds.includes(Number(data_id))){
-                categoryIds.splice(categoryIds.indexOf(Number(data_id)), 1)
-                this.parentElement.classList.remove("active")
+            if(categoryIds.includes(categoryId)) {
+                categoryIds.splice(categoryIds.indexOf(categoryId), 1);
+                category.parentElement.classList.remove("active")
             }else{
-                categoryIds.push(Number(data_id))
-                this.parentElement.classList.add("active")
+                categoryIds.push(categoryId)
+                category.parentElement.classList.add("active")
             }
             
-            updateProducts()
+            updateProducts();
         })
     })
 
-    
+    updateProducts();
 })
 
 
-// Məhsulların filtr əsasında yenilənməsi
-
 function updateProducts(){
+    
+    let container = document.querySelector(".inner-container")
     let html = ""
     database.products.forEach(product => {
         
-        if( (categoryIds.length == 0 ||  categoryIds.includes(product.categoryId) ) &&
-            (priceFilterMin == undefined || Number(product.price) >= priceFilterMin) &&
-            (priceFilterMax == undefined || Number(product.price) <= priceFilterMax)){
+        if( (!priceFilterMin || product.price >= priceFilterMin) &&
+            (!priceFilterMax || product.price <= priceFilterMax) &&
+            (categoryIds.length == 0 || categoryIds.includes(String(product.categoryId)))
+        ){
             html += 
             `
                 <a href="/detail.html">
@@ -130,7 +126,7 @@ function updateProducts(){
                         <img src="${product.image}" alt="">
                     </div>
                     <div class="content">
-                        <span class="title">${product.title.substring(0, 30)}</span>
+                        <span class="title">${product.title}</span>
                         <span class="price">${product.price}</span>
                     </div>
                 </div>
@@ -139,11 +135,8 @@ function updateProducts(){
         }
     })
 
-    document.querySelector(".inner-container").innerHTML = html;
+    container.innerHTML = html;
+}
 
-    document.querySelectorAll(".card").forEach(card => {
-        card.addEventListener("click", function() {
-            localStorage.setItem("productdetailindex", JSON.stringify(this.getAttribute("data-id")))
-        })
-    })
-}   
+
+
